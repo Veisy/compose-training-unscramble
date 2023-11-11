@@ -21,15 +21,26 @@ class GameViewModel : ViewModel() {
     }
 
     fun updateUserGuess(guessedWord: String) {
-        _uiState.update { currentState ->
-            currentState.copy(userGuess = guessedWord)
+        val currentScrambledWord = uiState.value.currentScrambledWord
+        if (guessedWord.all { char ->
+                (currentScrambledWord.contains(char)
+                        && currentScrambledWord.count { it == char } >= guessedWord.count { it == char })
+            }
+            && guessedWord.length <= currentScrambledWord.length
+        ) {
+            _uiState.update { currentState ->
+                currentState.copy(userGuess = guessedWord)
 
+            }
         }
     }
 
     fun checkUserGuess() {
-        if (uiState.value.userGuess.equals(currentWord, ignoreCase = true)) {
-            val updatedScore = _uiState.value.score.plus(SCORE_INCREASE)
+        val userGuess = uiState.value.userGuess.trim()
+        if (userGuess.isBlank() || userGuess.length != currentWord.length) {
+            return
+        } else if (userGuess.equals(currentWord, ignoreCase = true)) {
+            val updatedScore = uiState.value.score.plus(SCORE_INCREASE)
             updateGameState(updatedScore)
         } else {
             _uiState.update { currentState ->
@@ -40,7 +51,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun skipWord() {
-        updateGameState(_uiState.value.score)
+        updateGameState(uiState.value.score)
         updateUserGuess("")
     }
 
