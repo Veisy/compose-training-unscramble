@@ -78,8 +78,8 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             userGuess = gameUiState.userGuess,
             wordCount = gameUiState.currentWordCount,
             isGuessedWordWrong = gameUiState.isGuessedWordWrong,
-            onUserGuessChanged = { gameViewModel.updateUserGuess(it) },
-            onKeyboardDone = { gameViewModel.checkUserGuess() },
+            onUserGuessChanged = { gameViewModel.updateUserGuessIfLettersMatches(it) },
+            onKeyboardDone = { gameViewModel.checkUserGuessIfValidInput() },
             currentScrambledWord = gameUiState.currentScrambledWord,
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,7 +96,7 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { gameViewModel.checkUserGuess() }
+                onClick = { gameViewModel.checkUserGuessIfValidInput() }
             ) {
                 Text(
                     text = stringResource(R.string.submit),

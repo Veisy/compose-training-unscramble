@@ -1,5 +1,6 @@
 package com.example.unscramble.ui
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import com.example.unscramble.data.MAX_NO_OF_WORDS
 import com.example.unscramble.data.SCORE_INCREASE
@@ -20,7 +21,7 @@ class GameViewModel : ViewModel() {
         resetGame()
     }
 
-    fun updateUserGuess(guessedWord: String) {
+    fun updateUserGuessIfLettersMatches(guessedWord: String) {
         val currentScrambledWord = uiState.value.currentScrambledWord
         if (guessedWord.all { char ->
                 (currentScrambledWord.contains(char)
@@ -28,18 +29,30 @@ class GameViewModel : ViewModel() {
             }
             && guessedWord.length <= currentScrambledWord.length
         ) {
-            _uiState.update { currentState ->
-                currentState.copy(userGuess = guessedWord)
-
-            }
+            updateUserGuess(guessedWord)
         }
     }
 
-    fun checkUserGuess() {
+    @VisibleForTesting
+    internal fun updateUserGuess(guessedWord: String) {
+        _uiState.update { currentState ->
+            currentState.copy(userGuess = guessedWord)
+        }
+    }
+
+
+    fun checkUserGuessIfValidInput() {
         val userGuess = uiState.value.userGuess.trim()
         if (userGuess.isBlank() || userGuess.length != currentWord.length) {
             return
-        } else if (userGuess.equals(currentWord, ignoreCase = true)) {
+        }
+        checkUserGuess()
+    }
+
+    @VisibleForTesting
+    internal fun checkUserGuess() {
+        val userGuess = uiState.value.userGuess.trim()
+        if (userGuess.equals(currentWord, ignoreCase = true)) {
             val updatedScore = uiState.value.score.plus(SCORE_INCREASE)
             updateGameState(updatedScore)
         } else {
